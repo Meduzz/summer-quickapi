@@ -83,7 +83,14 @@ func (s *QuickStorage) Update(u *api.Update) (any, error) {
 		return nil, err
 	}
 
-	req := qapi.NewUpate(u.ID, e)
+	hooks := make([]model.Hook, 0)
+	scopeSupport, ok := s.entity.(model.ScopeSupport)
+
+	if ok {
+		hooks = createScopes(u.Hooks, scopeSupport.Scopes())
+	}
+
+	req := qapi.NewUpate(u.ID, e, hooks)
 
 	e, err = s.storage.Update(req)
 
@@ -95,7 +102,14 @@ func (s *QuickStorage) Update(u *api.Update) (any, error) {
 }
 
 func (s *QuickStorage) Delete(d *api.Delete) error {
-	req := qapi.NewDelete(d.ID)
+	hooks := make([]model.Hook, 0)
+	scopeSupport, ok := s.entity.(model.ScopeSupport)
+
+	if ok {
+		hooks = createScopes(d.Hooks, scopeSupport.Scopes())
+	}
+
+	req := qapi.NewDelete(d.ID, hooks)
 
 	err := s.storage.Delete(req)
 
@@ -108,11 +122,10 @@ func (s *QuickStorage) Delete(d *api.Delete) error {
 
 func (s *QuickStorage) Search(c *api.Search) (any, error) {
 	hooks := make([]model.Hook, 0)
-
 	scopeSupport, ok := s.entity.(model.ScopeSupport)
 
 	if ok {
-		hooks = createScopes(c.Filters, scopeSupport.Scopes())
+		hooks = createScopes(c.Hooks, scopeSupport.Scopes())
 	}
 
 	req := qapi.NewSearch(c.Skip, c.Take, c.Where, c.Sort, c.Preload, hooks)
@@ -127,7 +140,14 @@ func (s *QuickStorage) Search(c *api.Search) (any, error) {
 }
 
 func (s *QuickStorage) Patch(p *api.Patch) (any, error) {
-	req := qapi.NewPatch(p.ID, p.Data, p.Preload)
+	hooks := make([]model.Hook, 0)
+	scopeSupport, ok := s.entity.(model.ScopeSupport)
+
+	if ok {
+		hooks = createScopes(p.Hooks, scopeSupport.Scopes())
+	}
+
+	req := qapi.NewPatch(p.ID, p.Data, p.Preload, hooks)
 
 	e, err := s.storage.Patch(req)
 
