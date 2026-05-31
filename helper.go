@@ -56,7 +56,7 @@ func (w *Wrapper) RpcProxy(rpcClient *rpc.RPC, prefix, entity string, timeout in
 }
 
 func (w *Wrapper) Quickapi(db *gorm.DB, entity model.Entity) {
-	storer, _ := proxy.NewLocalProxy(db, entity) // TODO ignored error is ignored...
+	storer := proxy.NewLocalProxy(db, entity)
 	setup(w.instance, entity.Name(), storer)
 }
 
